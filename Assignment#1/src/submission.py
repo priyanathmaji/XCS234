@@ -96,6 +96,8 @@ def policy_improvement(R, T, V_policy, gamma):
 
     ############################
     ### START CODE HERE ###
+    Q = R + gamma * np.sum(T * V_policy, axis=2)
+    new_policy = np.argmax(Q, axis=1)
     ### END CODE HERE ###
     ############################
     return new_policy
