@@ -54,11 +54,11 @@ def policy_evaluation(policy, R, T, gamma, tol=1e-3):
     
     ############################
     ### START CODE HERE ###
-    print("policy:", policy)
-    print("gamma:", gamma)
-    print("T:", T)
-    print("R:", R)
-    print("tol:", tol)
+    #print("policy:", policy)
+    #print("gamma:", gamma)
+    #print("T:", T)
+    #print("R:", R)
+    #print("tol:", tol)
     V = np.zeros(num_states)
     #tol = 1e-3
     diff = np.inf
@@ -123,6 +123,13 @@ def policy_iteration(R, T, gamma, tol=1e-3):
     policy = None
     ############################
     ### START CODE HERE ###
+    policy = np.random.randint(0, 1, size=num_states)
+    diff = np.inf
+    while(diff > 0):
+        V_policy = policy_evaluation(policy, R, T, gamma, tol=1e-3)
+        new_policy = policy_improvement(R, T, V_policy, gamma)
+        diff = np.linalg.norm(new_policy - policy, ord=np.inf)
+        policy = new_policy
     ### END CODE HERE ###
     ############################
     return V_policy, policy
@@ -145,6 +152,16 @@ def value_iteration(R, T, gamma, tol=1e-3):
     policy = None
     ############################
     ### START CODE HERE ###
+    V = np.zeros(num_states)
+    diff = np.inf
+    while diff >= tol:
+            V_new = R + gamma * np.sum(T * V, axis=2)
+            policy = np.argmax(V_new, axis=1)
+            BV = np.max(V_new, axis=1)
+            diff = np.linalg.norm(BV - V, ord=np.inf)
+            V = BV
+    value_function = V
+    policy = policy
     ### END CODE HERE ###
     ############################
     return value_function, policy
@@ -155,14 +172,16 @@ def value_iteration(R, T, gamma, tol=1e-3):
 if __name__ == "__main__":
     SEED = 1234
 
-    RIVER_CURRENT = 'WEAK'
+    RIVER_CURRENT = 'STRONG'
     assert RIVER_CURRENT in ['WEAK', 'MEDIUM', 'STRONG']
     env = RiverSwim(RIVER_CURRENT, SEED)
 
     R, T = env.get_model()
-    discount_factor = 0.99
+    discount_factor = 0.92
 
-    print("\n" + "-" * 25 + "\nBeginning Policy Iteration\n" + "-" * 25)
+    print("\n" + "Current River Current: " + RIVER_CURRENT)
+    print("\n" + str(discount_factor * 100), "% Discount Factor")
+    print("\n" + "-" * 25 + "\nBeginning Policy Iteration" + "\n" + "-" * 25)
 
     V_pi, policy_pi = policy_iteration(R, T, gamma=discount_factor, tol=1e-3)
     print(V_pi)
