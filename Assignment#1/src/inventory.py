@@ -53,8 +53,7 @@ T[1,1,0] = 1
     plt.yticks(np.arange(num_states))  # Set y-axis ticks at every state
     plt.show() """
 
-gamma = 0.6
-tol = 1e-3
+
 
 
 def value_iteration(T,R,gamma,tol):
@@ -71,6 +70,23 @@ def value_iteration(T,R,gamma,tol):
    policy = np.argmax(V_new, axis=1)
    print("Converged after", index, "iterations")
    return V, policy
+
+
+def finite_horizon_value(H,T,R,gamma):
+    V = np.zeros((H+1, num_states))
+    policy = np.zeros((H, num_states), dtype=int)
+    k = 1
+    while k <= H:
+        for s in range(num_states):
+            Q = np.zeros(num_actions)
+            for a in range(num_actions):
+                Q[a] = R[s,a] + gamma * np.dot(T[s,a],V[k-1])
+            V[k,s] = np.max(Q)
+            policy[k-1,s] = np.argmax(Q)
+        k += 1
+    print("V:", V)
+    print("Policy:", policy)
+    return V, policy
 
 def finite_horizon(H,T,R,gamma):
     seq = "s3"
@@ -96,7 +112,7 @@ def finite_horizon(H,T,R,gamma):
         #print("Action chosen:", a_rand)
         #print("New state:", s_new)
         seq += f" -> s{s_new}"
-        reward = reward + (gamma * R[s_old, a_rand])
+        reward = reward + gamma * R[s_old, a_rand]
         s_old = s_new
         t = t + 1
       
@@ -107,12 +123,16 @@ def finite_horizon(H,T,R,gamma):
     print("Total Reward:", reward)
 
 if __name__ == "__main__":
-   gamma = 1.0
-   V, policy = value_iteration(T,R,gamma,tol)
-   print("Value Function V:", V)
-   print("Optimal Policy:", policy)
+    gamma = 0.75
+    tol = 1e-3
+    V, policy = value_iteration(T,R,gamma,tol)
+    print("Value Function V:", V)
+    print("Optimal Policy:", policy)
 
-   i = 0
-   while i < 10:
-      i += 1
-      finite_horizon(11, T, R, gamma)
+    gamma = .01
+    i = 0
+    while i < 10:
+        i += 1
+        finite_horizon(4, T, R, gamma)
+
+    finite_horizon_value(4, T, R, gamma)
